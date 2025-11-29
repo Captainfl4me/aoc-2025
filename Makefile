@@ -1,4 +1,4 @@
-new-day-%: day-$*
+new-day-%:
 	@echo "Creating day $*"
 	mkdir aoc-2025-inputs/day-$*/
 	touch aoc-2025-inputs/day-$*/input.txt
