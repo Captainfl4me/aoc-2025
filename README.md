@@ -1,4 +1,4 @@
-# 🎄 Advent of Code 2023 🎄
+# 🎄 Advent of Code 2025 🎄
 
 <img src="./img/rustacean-flat-happy.png" width="164">
 
