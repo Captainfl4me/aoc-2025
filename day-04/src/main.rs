@@ -7,7 +7,10 @@ fn main() {
 }
 
 fn part_1(input: &str) -> u64 {
-    let mut map = input.lines().map(|line| line.chars().map(|char| char == '@').collect::<Vec<bool>>()).collect::<Vec<Vec<bool>>>();
+    let mut map = input
+        .lines()
+        .map(|line| line.chars().map(|char| char == '@').collect::<Vec<bool>>())
+        .collect::<Vec<Vec<bool>>>();
 
     // Create borders
     for line in map.iter_mut() {
@@ -18,14 +21,16 @@ fn part_1(input: &str) -> u64 {
     map.insert(map.len(), vec![false; map[0].len()]);
 
     let mut accessible_paper_roll = 0;
-    for line_id in 1..(map.len()-1) {
-        for col_id in 1..(map[0].len()-1) {
+    for line_id in 1..(map.len() - 1) {
+        for col_id in 1..(map[0].len() - 1) {
             if map[line_id][col_id] {
                 let mut busy_neighboors = 0;
 
                 for offset_line in -1..=1 {
                     for offset_col in -1..=1 {
-                        if map[((line_id as i64) + offset_line) as usize][((col_id as i64) + offset_col) as usize] {
+                        if map[((line_id as i64) + offset_line) as usize]
+                            [((col_id as i64) + offset_col) as usize]
+                        {
                             busy_neighboors += 1;
                         }
                     }
@@ -37,12 +42,61 @@ fn part_1(input: &str) -> u64 {
             }
         }
     }
-    
+
     accessible_paper_roll
 }
 
 fn part_2(input: &str) -> u64 {
-    0
+    let mut map = input
+        .lines()
+        .map(|line| line.chars().map(|char| char == '@').collect::<Vec<bool>>())
+        .collect::<Vec<Vec<bool>>>();
+    let mut paper_roll_to_remove: Vec<(usize, usize)> = Vec::new();
+
+    // Create borders
+    for line in map.iter_mut() {
+        line.insert(0, false);
+        line.insert(line.len(), false);
+    }
+    map.insert(0, vec![false; map[0].len()]);
+    map.insert(map.len(), vec![false; map[0].len()]);
+
+    let mut accessible_paper_roll = 1;
+    let mut total_accessible_paper_roll = 0;
+
+    while accessible_paper_roll > 0 {
+        accessible_paper_roll = 0;
+        for line_id in 1..(map.len() - 1) {
+            for col_id in 1..(map[0].len() - 1) {
+                if map[line_id][col_id] {
+                    let mut busy_neighboors = 0;
+
+                    for offset_line in -1..=1 {
+                        for offset_col in -1..=1 {
+                            if map[((line_id as i64) + offset_line) as usize]
+                                [((col_id as i64) + offset_col) as usize]
+                            {
+                                busy_neighboors += 1;
+                            }
+                        }
+                    }
+
+                    if busy_neighboors <= 4 {
+                        accessible_paper_roll += 1;
+                        paper_roll_to_remove.push((line_id, col_id));
+                    }
+                }
+            }
+        }
+
+        for (line_id, col_id) in paper_roll_to_remove.iter() {
+            map[*line_id][*col_id] = false;
+        }
+
+        total_accessible_paper_roll += accessible_paper_roll;
+    }
+
+    total_accessible_paper_roll
 }
 
 #[cfg(test)]
@@ -58,6 +112,6 @@ mod tests_day_04 {
     #[test]
     fn test_part_2() {
         let input = include_str!("../../aoc-2025-inputs/day-04/test.txt");
-        assert_eq!(part_2(input), 0);
+        assert_eq!(part_2(input), 43);
     }
 }
