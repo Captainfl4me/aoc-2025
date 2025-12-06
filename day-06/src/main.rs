@@ -58,8 +58,73 @@ fn part_1(input: &str) -> u64 {
     })
 }
 
+#[derive(Debug)]
+struct ProblemT {
+    operation: char,
+    numbers: Vec<u64>,
+}
+
 fn part_2(input: &str) -> u64 {
-    0
+    let input_table: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
+    let input_table_t = transpose(input_table);
+
+    let mut problems: Vec<ProblemT> = Vec::new();
+    let mut temp: Vec<Vec<char>> = Vec::new();
+    for col in input_table_t.iter() {
+        if col.iter().all(|x| *x == ' ') {
+            let problem = ProblemT {
+                operation: *temp[0].last().unwrap(),
+                numbers: temp
+                    .iter()
+                    .map(|n| {
+                        n.iter()
+                            .filter(|c| c.is_ascii_digit())
+                            .collect::<String>()
+                            .parse::<u64>()
+                            .unwrap()
+                    })
+                    .collect(),
+            };
+            problems.push(problem);
+            temp = Vec::new();
+        } else {
+            temp.push(col.clone());
+        }
+    }
+    if !temp.is_empty() {
+        let problem = ProblemT {
+            operation: *temp[0].last().unwrap(),
+            numbers: temp
+                .iter()
+                .map(|n| {
+                    n.iter()
+                        .filter(|c| c.is_ascii_digit())
+                        .collect::<String>()
+                        .parse::<u64>()
+                        .unwrap()
+                })
+                .collect(),
+        };
+        problems.push(problem);
+    }
+
+    problems.iter().fold(0, |acc, problem| {
+        let res_init = {
+            if problem.operation == '*' {
+                1
+            } else {
+                0
+            }
+        };
+
+        acc + problem.numbers.iter().fold(res_init, |res, n| {
+            if problem.operation == '*' {
+                res * n
+            } else {
+                res + n
+            }
+        })
+    })
 }
 
 #[cfg(test)]
@@ -75,6 +140,6 @@ mod tests_day_06 {
     #[test]
     fn test_part_2() {
         let input = include_str!("../../aoc-2025-inputs/day-06/test.txt");
-        assert_eq!(part_2(input), 0);
+        assert_eq!(part_2(input), 3263827);
     }
 }
