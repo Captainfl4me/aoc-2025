@@ -14,4 +14,4 @@ To create a new day simply run: ```make new-day-NUMBER_OF_DAY```.
 
 Algorithm|File|Small description
 --|--|--
-
+[DFS](https://en.wikipedia.org/wiki/Depth-first_search) with cached branch|[day-11](./day-11/src/main.rs)|Depth-First-Search search through graph exploring depth first and cached already explored state to optimised the search if the graph converge in one or more spots.
