@@ -83,6 +83,58 @@ fn part_1(input: &str, iter_cnt: u64) -> u64 {
 }
 
 fn part_2(input: &str) -> u64 {
+    let mut dist = input
+        .lines()
+        .map(|line| {
+            line.split(',')
+                .map(|num| num.parse::<i64>().unwrap())
+                .collect_tuple::<(i64, i64, i64)>()
+                .unwrap()
+        })
+        .combinations(2)
+        .map(|combination| link {
+            point1: combination[0],
+            point2: combination[1],
+            dist: compute_eucl_dist(&combination[0], &combination[1]),
+        })
+        .sorted_by_key(|link| link.dist as u64);
+
+    let mut circuits: Vec<HashSet<(i64, i64, i64)>> = Vec::new();
+
+    for link in dist {
+        let mut find_circuit: Option<usize> = None;
+        let mut circuit_to_merge: Option<usize> = None;
+
+        for (index, circuit) in circuits.iter_mut().enumerate() {
+            if circuit.contains(&link.point1) || circuit.contains(&link.point2) {
+                if find_circuit.is_some() {
+                    circuit_to_merge = Some(index);
+                } else {
+                    circuit.insert(link.point1);
+                    circuit.insert(link.point2);
+                    find_circuit = Some(index);
+                }
+            }
+        }
+
+        if let Some(ctm) = circuit_to_merge {
+            let old_circuit = circuits[ctm].clone();
+            circuits[find_circuit.unwrap()].extend(old_circuit);
+            circuits.swap_remove(ctm);
+        }
+
+        if find_circuit.is_none() {
+            let mut new_circuit = HashSet::new();
+            new_circuit.insert(link.point1);
+            new_circuit.insert(link.point2);
+            circuits.push(new_circuit);
+        }
+
+        if circuits.len() == 1 && circuits[0].len() == input.lines().count() {
+            return (link.point1.0 * link.point2.0) as u64;
+        }
+    }
+
     0
 }
 
@@ -99,6 +151,6 @@ mod tests_day_08 {
     #[test]
     fn test_part_2() {
         let input = include_str!("../../aoc-2025-inputs/day-08/test.txt");
-        assert_eq!(part_2(input), 0);
+        assert_eq!(part_2(input), 25272);
     }
 }
