@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 fn main() {
     let input = include_str!("../../aoc-2025-inputs/day-09/input.txt");
     let now = std::time::Instant::now();
@@ -7,11 +9,26 @@ fn main() {
 }
 
 fn part_1(input: &str) -> u64 {
-    todo!()
+    let area = input
+        .lines()
+        .map(|line| {
+            line.split(',')
+                .map(|num| num.parse::<i64>().unwrap())
+                .collect_tuple::<(i64, i64)>()
+                .unwrap()
+        })
+        .combinations(2)
+        .map(|comb| {
+            let width = (comb[0].0 - comb[1].0).abs() + 1;
+            let height = (comb[0].1 - comb[1].1).abs() + 1;
+            width * height
+        });
+
+    area.max().unwrap() as u64
 }
 
 fn part_2(input: &str) -> u64 {
-    todo!()
+    0
 }
 
 #[cfg(test)]
@@ -21,7 +38,7 @@ mod tests_day_09 {
     #[test]
     fn test_part_1() {
         let input = include_str!("../../aoc-2025-inputs/day-09/test.txt");
-        assert_eq!(part_1(input), 0);
+        assert_eq!(part_1(input), 50);
     }
 
     #[test]
