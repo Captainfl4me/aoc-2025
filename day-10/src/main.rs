@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 fn main() {
     let input = include_str!("../../aoc-2025-inputs/day-10/input.txt");
@@ -47,9 +47,15 @@ fn part_1(input: &str) -> u64 {
     })
 }
 
-fn find_min_comb_joltage(buttons: &HashSet<u32>, joltages: &[u32]) -> u64 {
+fn find_min_comb_joltage(
+    buttons: &HashSet<u32>,
+    joltages: &[u32],
+    cache: &mut HashMap<Vec<u32>, u64>,
+) -> u64 {
     if joltages.iter().all(|x| *x == 0) {
         0
+    } else if let Some(cached_val) = cache.get(joltages) {
+        *cached_val
     } else {
         let odd_mask = joltages.iter().enumerate().fold(0, |mask, (i, &n)| {
             mask | if (n % 2) == 1 { 1 << i } else { 0 }
@@ -90,13 +96,17 @@ fn find_min_comb_joltage(buttons: &HashSet<u32>, joltages: &[u32]) -> u64 {
             }
         }
 
-        next_states
+        let value = next_states
             .iter()
             .map(|(next_joltages, comb_count)| {
-                2 * find_min_comb_joltage(buttons, next_joltages) + *comb_count
+                2 * find_min_comb_joltage(buttons, next_joltages, cache) + *comb_count
             })
             .min()
-            .unwrap_or(1000000)
+            .unwrap_or(1000);
+
+        cache.insert(joltages.to_owned(), value);
+
+        value
     }
 }
 
@@ -121,7 +131,8 @@ fn part_2(input: &str) -> u64 {
             buttons.insert(btn_mask);
         }
 
-        let val = find_min_comb_joltage(&buttons, &counters);
+        let mut cache: HashMap<Vec<u32>, u64> = HashMap::new();
+        let val = find_min_comb_joltage(&buttons, &counters, &mut cache);
         acc + val
     })
 }
@@ -138,9 +149,7 @@ mod tests_day_10 {
 
     #[test]
     fn test_part_2() {
-        let input = "[.###.#] (0,1,2,3,4) (0,3,4) (0,1,2,4,5) (1,2) {10,11,11,5,10,5}";
-        assert_eq!(part_2(input), 11);
-        // let input = include_str!("../../aoc-2025-inputs/day-10/test.txt");
-        // assert_eq!(part_2(input), 33);
+        let input = include_str!("../../aoc-2025-inputs/day-10/test.txt");
+        assert_eq!(part_2(input), 33);
     }
 }
