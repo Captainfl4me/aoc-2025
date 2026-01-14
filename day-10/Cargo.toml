@@ -8,3 +8,5 @@ edition = "2021"
 
 [dependencies]
 itertools = "0.14.0"
+ndarray = "0.17.2"
+ndarray-linalg = { version = "0.18.1", features = ["openblas-static"] }
